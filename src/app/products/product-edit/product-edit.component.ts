@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { MessageService } from '../../messages/message.service';
 
-import { Product } from '../product';
+import { Product, ProductResolved } from '../product';
 import { ProductService } from '../product.service';
 
 @Component({
@@ -16,14 +17,34 @@ export class ProductEditComponent {
   product: Product;
 
   constructor(private productService: ProductService,
-              private messageService: MessageService) { }
+              private messageService: MessageService,
+              private route: ActivatedRoute,
+              private router: Router) { }
 
-  getProduct(id: number): void {
+  ngOnInit(): void{
+
+    /*this.route.paramMap.subscribe(
+      params => {
+        const id = +params.get('id');
+        this.getProduct(id);
+      }
+    )*/
+
+    //Instead of reading the data frpm ActivatedRoute snapshot once we subscribe to ActivatedRoute Data
+    this.route.data.subscribe(data => {
+      const resolvedData: ProductResolved = data['resolvedData'];
+      this.errorMessage = resolvedData.error;
+      this.onProductRetrieved(resolvedData.product);
+    })
+    
+  }
+
+  /*getProduct(id: number): void {
     this.productService.getProduct(id).subscribe({
       next: product => this.onProductRetrieved(product),
       error: err => this.errorMessage = err
     });
-  }
+  }*/
 
   onProductRetrieved(product: Product): void {
     this.product = product;
